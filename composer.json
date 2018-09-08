@@ -1,0 +1,17 @@
+{
+    "name": "jaywood/jays-aliex-importer",
+    "description": "A WooCommerce importer for Aliexpress, since all the others suck.",
+    "type": "wordpress-plugin",
+    "license": "GPLv2",
+    "authors": [
+        {
+            "name": "Jay Wood",
+            "email": "jjwood2004@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^1.0"
+    }
+}
