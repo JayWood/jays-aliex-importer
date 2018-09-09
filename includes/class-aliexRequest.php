@@ -1,7 +1,8 @@
 <?php
 namespace com\plugish\aliex;
 
-use DOMDocument;
+use DiDom\Document;
+use DiDom\Element;
 use Exception;
 
 class AliexRequest {
@@ -14,7 +15,7 @@ class AliexRequest {
 
 	/**
 	 * Used throughout this object.
-	 * @var DOMDocument
+	 * @var Document
 	 */
 	private $dom;
 
@@ -37,14 +38,13 @@ class AliexRequest {
 
 		// Silence any domdocument errors since we don't control the HTML.
 		libxml_use_internal_errors( true );
-		$this->dom = new DOMDocument();
 
 		// Grab the transient if you can.
 		$trans_key = 'aliex_' . md5( $url );
 		$response  = get_transient( $trans_key );
 		if ( ! empty( $response ) ) {
 			$this->request = $response;
-			$this->dom->loadHTML( $response );
+			$this->dom     = new Document( $response );
 			return;
 		}
 
@@ -62,7 +62,7 @@ class AliexRequest {
 		}
 
 		$this->request = wp_remote_retrieve_body( $request );
-		$this->dom->loadHTML( $request );
+		$this->dom     = new Document( $this->request );
 
 		set_transient( $trans_key, $this->request, 6 * HOUR_IN_SECONDS );
 	}
@@ -115,7 +115,7 @@ class AliexRequest {
 	 * Returns the JSON decoded array of SKU data from the skuProducts javascript variable.
 	 * @return array|bool an array on success, false on failure.
 	 */
-	public function get_js_sku_data() {
+	public function get_js_sku_data() : array {
 		preg_match( '/skuProducts=\[(.*?)\];/si', $this->request, $matches );
 		if ( empty( $matches[1] ) ) {
 			return false;
@@ -124,7 +124,29 @@ class AliexRequest {
 		return json_decode( sprintf( '[%s]', $matches[1] ), true );
 	}
 
-	public function parse_variations_html() {
-		$this->dom;
+	public function parse_variations_html() : array {
+		$sku_sets = $this->dom->find( '#j-product-info-sku' );
+		$sku_data = [];
+		for ( $i = 0; $i < count( $sku_sets ); $i++ ) {
+			// Drop it into a var so it can be looped.
+			$sku_set = $sku_sets[ $i ];
+
+			// Get the variation label.
+			$label = $sku_set->find( '.p-item-title' )[0]->text();
+			$label = trim( str_replace( ':', '', $label ) );
+
+			// Get the error now.
+			$msg_error = trim( $sku_set->find( '.sku-msg-error' )[0]->text() );
+
+			// Get all sku props
+			$sku_props = $sku_set->find( '.sku-attr-list' );
+
+			// Get each individual SKU data set.
+			$sku_prop_id = $sku_props[0]->attr( 'data-sku-prop-id' );
+
+			$sku_data[] = compact( 'sku_prop_id', 'label', 'msg_error' );
+		}
+
+		wp_die( print_r( $sku_data, 1 ) );
 	}
 }
