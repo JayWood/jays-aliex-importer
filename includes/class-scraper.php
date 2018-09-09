@@ -21,12 +21,12 @@ class Scraper {
 
 	public function testing() {
 		try {
-			$scraper = new AliexRequest( 'https://www.aliexpress.com/item/Fashion-Hollow-Couple-Wrist-Watch-Skeleton-Leather-Strap-Quartz-Watch-Clocks-Reloj-Hombre-Relogio-Feminino-Masculino/32885073625.html' );
+			$scraper = new AliexRequest( 'https://www.aliexpress.com/store/product/Ghost-evil-Skull-skeleton-Hand-CZ-Ring-European-and-American-Punk-style-Motor-Biker-Men-Ring/1899928_32874190860.html' );
 		} catch ( \Exception $e ) {
 			return;
 		}
 
-		$scraper->get_sku_products();
+		$scraper->get_js_sku_data();
 	}
 
 }

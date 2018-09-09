@@ -44,6 +44,7 @@ class AliexRequest {
 		$response  = get_transient( $trans_key );
 		if ( ! empty( $response ) ) {
 			$this->request = $response;
+			$this->dom->loadHTML( $response );
 			return;
 		}
 
@@ -61,6 +62,7 @@ class AliexRequest {
 		}
 
 		$this->request = wp_remote_retrieve_body( $request );
+		$this->dom->loadHTML( $request );
 
 		set_transient( $trans_key, $this->request, 6 * HOUR_IN_SECONDS );
 	}
@@ -109,14 +111,20 @@ class AliexRequest {
 		return intval( $matches[1] );
 	}
 
-	public function get_sku_products() {
+	/**
+	 * Returns the JSON decoded array of SKU data from the skuProducts javascript variable.
+	 * @return array|bool an array on success, false on failure.
+	 */
+	public function get_js_sku_data() {
 		preg_match( '/skuProducts=\[(.*?)\];/si', $this->request, $matches );
 		if ( empty( $matches[1] ) ) {
 			return false;
 		}
 
-		$decoded = json_decode( sprintf( '[%s]', $matches[1] ), true );
+		return json_decode( sprintf( '[%s]', $matches[1] ), true );
+	}
 
-		wp_die( '<pre>' . print_r( $decoded, 1 ) . '</pre>' );
+	public function parse_variations_html() {
+		$this->dom;
 	}
 }
