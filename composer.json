@@ -10,8 +10,7 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {},
-    "require-dev": {
-        "wp-coding-standards/wpcs": "^1.0"
+    "require": {
+        "imangazaliev/didom": "^1.13"
     }
 }
