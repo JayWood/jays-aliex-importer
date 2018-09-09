@@ -124,6 +124,10 @@ class AliexRequest {
 		return json_decode( sprintf( '[%s]', $matches[1] ), true );
 	}
 
+	/**
+	 * Parses the SKU HTML sections and creates a human readable ( somewhat ) array of data.
+	 * @return array
+	 */
 	public function parse_variations_html() : array {
 		$sku_wrapper = $this->dom->find( '#j-product-info-sku' );
 		if ( 1 > count( $sku_wrapper ) ) {
@@ -150,7 +154,7 @@ class AliexRequest {
 			$sku_prop_id = $sku_props[0]->attr( 'data-sku-prop-id' );
 
 			$skus         = [];
-			$sku_children = $sku_props[0]->children( 'li' );
+			$sku_children = $sku_props[0]->find( 'li' );
 			for ( $y = 0; $y < count( $sku_children ); $y++ ) {
 				// Saves typing later.
 				$child = $sku_children[ $y ];
@@ -163,20 +167,18 @@ class AliexRequest {
 				}
 
 				// Get the sku properties from the anchor.
-				$id            = $anchor[0]->getAttribute( 'data-sku-id' );
+				$id = $anchor[0]->getAttribute( 'data-sku-id' );
 
 				// @TODO: Seems to be auto-updated somehow through the JS.
 				$spm_anchor_id = $anchor[0]->getAttribute( 'data-spm-anchor-id' );
 
-				wp_die( print_r( $anchor[0]->html(), 1 ) );
-
 				$image = $anchor[0]->find( 'img' );
 				if ( 1 > count( $image ) ) {
 					// This isn't an image-based SKU.
-					$label = trim( $anchor[0]->text() );
+					$sku_label = trim( $anchor[0]->text() );
 				} else {
 					// This is an image-based SKU, return the image URL and additional data.
-					$label             = $image[0]->getAttribute( 'title' );
+					$sku_label = $image[0]->getAttribute( 'title' );
 
 					// @TODO: Seems to be auto-updated somehow through the JS.
 					$img_spm_anchor_id = $image[0]->getAttribute( 'data-spm-anchor-id' );
@@ -184,20 +186,16 @@ class AliexRequest {
 					$big_pic           = $image[0]->getAttribute( 'bigpic' );
 				}
 
-				$sku = compact( 'id', 'label', 'spm_anchor_id' );
+				$sku = compact( 'id', 'sku_label', 'spm_anchor_id' );
 				if ( 1 <= count( $image ) ) {
-					$sku['image'] = compact( 'img_spm_anchor_id', 'src', 'big_pic' );
+					$sku['image'] = compact( 'src', 'big_pic', 'img_spm_anchor_id' );
 				}
 
 				$skus[] = $sku;
-				$y++;
 			}
 
 			$sku_data[] = compact( 'sku_prop_id', 'label', 'msg_error', 'skus' );
-			$i++;
 		}
-
-		wp_die( '<pre>' . print_r( $sku_data, 1 ) . '</pre>' );
 
 		return $sku_data;
 	}
