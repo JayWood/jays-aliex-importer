@@ -46,5 +46,6 @@ function notice_failed_php_check() {
 add_action( 'admin_notices', __NAMESPACE__ . '\notice_failed_php_check' );
 
 if ( is_valid_php_ver() ) {
+    require_once 'vendor/autoload.php';
 	require_once 'init.php';
 }
