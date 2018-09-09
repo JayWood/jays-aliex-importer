@@ -26,7 +26,7 @@ class Scraper {
 			return;
 		}
 
-		$scraper->get_js_sku_data();
+		$scraper->parse_variations_html();
 	}
 
 }

@@ -125,7 +125,12 @@ class AliexRequest {
 	}
 
 	public function parse_variations_html() : array {
-		$sku_sets = $this->dom->find( '#j-product-info-sku' );
+		$sku_wrapper = $this->dom->find( '#j-product-info-sku' );
+		if ( 1 > count( $sku_wrapper ) ) {
+			return array();
+		}
+
+		$sku_sets = $sku_wrapper[0]->find( '.p-property-item' );
 		$sku_data = [];
 		for ( $i = 0; $i < count( $sku_sets ); $i++ ) {
 			// Drop it into a var so it can be looped.
@@ -141,12 +146,59 @@ class AliexRequest {
 			// Get all sku props
 			$sku_props = $sku_set->find( '.sku-attr-list' );
 
-			// Get each individual SKU data set.
+			// Get the sku prop ID, for later use.
 			$sku_prop_id = $sku_props[0]->attr( 'data-sku-prop-id' );
 
-			$sku_data[] = compact( 'sku_prop_id', 'label', 'msg_error' );
+			$skus         = [];
+			$sku_children = $sku_props[0]->children( 'li' );
+			for ( $y = 0; $y < count( $sku_children ); $y++ ) {
+				// Saves typing later.
+				$child = $sku_children[ $y ];
+				$sku   = [];
+
+				// Get the anchor object.
+				$anchor = $child->find( 'a[^data-role=sku]' );
+				if ( 1 > count( $anchor ) ) {
+					continue;
+				}
+
+				// Get the sku properties from the anchor.
+				$id            = $anchor[0]->getAttribute( 'data-sku-id' );
+
+				// @TODO: Seems to be auto-updated somehow through the JS.
+				$spm_anchor_id = $anchor[0]->getAttribute( 'data-spm-anchor-id' );
+
+				wp_die( print_r( $anchor[0]->html(), 1 ) );
+
+				$image = $anchor[0]->find( 'img' );
+				if ( 1 > count( $image ) ) {
+					// This isn't an image-based SKU.
+					$label = trim( $anchor[0]->text() );
+				} else {
+					// This is an image-based SKU, return the image URL and additional data.
+					$label             = $image[0]->getAttribute( 'title' );
+
+					// @TODO: Seems to be auto-updated somehow through the JS.
+					$img_spm_anchor_id = $image[0]->getAttribute( 'data-spm-anchor-id' );
+					$src               = $image[0]->getAttribute( 'src' );
+					$big_pic           = $image[0]->getAttribute( 'bigpic' );
+				}
+
+				$sku = compact( 'id', 'label', 'spm_anchor_id' );
+				if ( 1 <= count( $image ) ) {
+					$sku['image'] = compact( 'img_spm_anchor_id', 'src', 'big_pic' );
+				}
+
+				$skus[] = $sku;
+				$y++;
+			}
+
+			$sku_data[] = compact( 'sku_prop_id', 'label', 'msg_error', 'skus' );
+			$i++;
 		}
 
-		wp_die( print_r( $sku_data, 1 ) );
+		wp_die( '<pre>' . print_r( $sku_data, 1 ) . '</pre>' );
+
+		return $sku_data;
 	}
 }
