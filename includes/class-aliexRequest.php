@@ -47,21 +47,7 @@ class AliexRequest {
 			$this->dom     = new Document( $response );
 			return;
 		}
-
-		// Fake the user agent, since Aliexpress locks down local devs.
-		$request = wp_remote_get( $this->url, [
-			'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
-		] );
-
-		if ( is_wp_error( $request ) ) {
-			throw new Exception( $request->get_error_message() );
-		}
-
-		if ( 200 !== wp_remote_retrieve_response_code( $request ) ) {
-			throw new Exception( 'Failed to get a valid response code from the request.' );
-		}
-
-		$this->request = wp_remote_retrieve_body( $request );
+		$this->request = $this->remote_get( $this->url );
 		$this->dom     = new Document( $this->request );
 
 		set_transient( $trans_key, $this->request, 6 * HOUR_IN_SECONDS );
@@ -124,6 +110,42 @@ class AliexRequest {
 		return json_decode( sprintf( '[%s]', $matches[1] ), true );
 	}
 
+	public function get_description_endpoint() : string {
+		preg_match( '/detailDesc=\"(.*?)\";/si', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return '';
+		}
+
+		return str_replace( '"', '', $matches[1] );
+	}
+
+	/**
+	 * Gets the public description text that can be parsed.
+	 *
+	 * This method does call for a second HTTP request, this is because the data is stored on an external server and
+	 * the request for the server is stored in the HTML body of the main site.
+	 *
+	 * @return string
+	 */
+	public function get_public_description() : string {
+		if ( isset( $this->public_description ) && ! is_null( $this->public_description ) ) {
+			return $this->public_description;
+		}
+
+		$desc_url = $this->get_description_endpoint();
+		if ( empty( $desc_url ) ) {
+			return '';
+		}
+
+		try {
+			$this->public_description = $this->remote_get( $desc_url );
+		} catch ( Exception $e ) {
+			return '';
+		}
+
+		return $this->public_description;
+	}
+
 	/**
 	 * Parses the SKU HTML sections and creates a human readable ( somewhat ) array of data.
 	 * @return array
@@ -136,7 +158,7 @@ class AliexRequest {
 
 		$sku_sets = $sku_wrapper[0]->find( '.p-property-item' );
 		$sku_data = [];
-		for ( $i = 0; $i < count( $sku_sets ); $i++ ) {
+		for ( $i = 0; $i < count( $sku_sets ); $i++ ) { // @codingStandardsIgnoreLine Count is lightweight
 			// Drop it into a var so it can be looped.
 			$sku_set = $sku_sets[ $i ];
 
@@ -155,7 +177,7 @@ class AliexRequest {
 
 			$skus         = [];
 			$sku_children = $sku_props[0]->find( 'li' );
-			for ( $y = 0; $y < count( $sku_children ); $y++ ) {
+			for ( $y = 0; $y < count( $sku_children ); $y++ ) { // @codingStandardsIgnoreLine Count is lightweight
 				// Saves typing later.
 				$child = $sku_children[ $y ];
 				$sku   = [];
@@ -198,5 +220,28 @@ class AliexRequest {
 		}
 
 		return $sku_data;
+	}
+
+	/**
+	 * @param string $url
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
+	protected function remote_get( string $url ) : string {
+		// Fake the user agent, since Aliexpress locks down local devs.
+		$request = wp_remote_get( $url, [
+			'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
+		] );
+
+		if ( is_wp_error( $request ) ) {
+			throw new Exception( $request->get_error_message() );
+		}
+
+		if ( 200 !== wp_remote_retrieve_response_code( $request ) ) {
+			throw new Exception( 'Failed to get a valid response code from the request.' );
+		}
+
+		return wp_remote_retrieve_body( $request );
 	}
 }
