@@ -180,7 +180,6 @@ class AliexRequest {
 			for ( $y = 0; $y < count( $sku_children ); $y++ ) { // @codingStandardsIgnoreLine Count is lightweight
 				// Saves typing later.
 				$child = $sku_children[ $y ];
-				$sku   = [];
 
 				// Get the anchor object.
 				$anchor = $child->find( 'a[^data-role=sku]' );
