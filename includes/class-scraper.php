@@ -8,7 +8,7 @@ class Scraper {
 	public static $instance = null;
 
 	public static function get_instance() {
-		if ( null == self::$instance ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self;
 		}
 
@@ -26,7 +26,17 @@ class Scraper {
 			return;
 		}
 
-		$scraper->parse_variations_html();
+		if ( ! isset( $_GET['x'] ) ) {
+			return;
+		}
+
+		wp_send_json( array_merge(
+			$scraper->get_main_product_image(),
+			$scraper->get_product_images(),
+			$scraper->get_packaging_details(),
+			$scraper->get_product_attributes(),
+			$scraper->get_product_variations()
+		) );
 	}
 
 }
