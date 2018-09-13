@@ -60,40 +60,40 @@ class AliexRequest {
 		preg_match( '/imageBigViewURL=\[\n(.*?)\r?\n?\];/si', $this->request, $matches );
 
 		if ( empty( $matches[1] ) ) {
-			return [];
+			return [ 'product_images' => [] ];
 		}
 
 		$matched_urls = array_map( 'trim', explode( ',', str_replace( '"', '', $matches[1] ) ) );
 		if ( empty( $matched_urls ) ) {
-			return [];
+			return [ 'product_images' => [] ];
 		}
 
-		return $matched_urls;
+		return [ 'product_images' => $matched_urls ];
 	}
 
 	/**
 	 * Gets the main product image from the javascript variable.
 	 * @return string
 	 */
-	public function get_main_product_image() : string {
+	public function get_main_product_image() : array {
 		preg_match( '/mainBigPic = "(.*?)";/si', $this->request, $matches );
 		if ( empty( $matches[1] ) ) {
-			return '';
+			return [ 'main_product_image' => '' ];
 		}
 
-		return (string) $matches[1];
+		return [ 'main_product_image' => $matches[1] ];
 	}
 
 	/**
 	 * Gets the total available stock for the requested product, encompasses all SKUs.
 	 * @return int
 	 */
-	public function total_stock_available() : int {
+	public function total_stock_available() : array {
 		preg_match( '/totalAvailQuantity=([0-9]+);/', $this->request, $matches );
 		if ( empty( $matches[1] ) ) {
-			return 0;
+			return [ 'total_stock_available' => 0 ];
 		}
-		return intval( $matches[1] );
+		return [ 'total_stock_available' => intval( $matches[1] ) ];
 	}
 
 	/**
@@ -103,13 +103,17 @@ class AliexRequest {
 	public function get_product_variations() : array {
 		preg_match( '/skuProducts=\[(.*?)\];/si', $this->request, $matches );
 		if ( empty( $matches[1] ) ) {
-			return false;
+			return [ 'variations' => [] ];
 		}
 
-		return json_decode( sprintf( '[%s]', $matches[1] ), true );
+		return [ 'variations' => json_decode( sprintf( '[%s]', $matches[1] ), true ) ];
 	}
 
-	public function get_description_endpoint() : string {
+	/**
+	 * Gets the endpoint for the public product description CDN.
+	 * @return string
+	 */
+	private function get_description_endpoint() : string {
 		preg_match( '/detailDesc=\"(.*?)\";/si', $this->request, $matches );
 		if ( empty( $matches[1] ) ) {
 			return '';
@@ -124,25 +128,25 @@ class AliexRequest {
 	 * This method does call for a second HTTP request, this is because the data is stored on an external server and
 	 * the request for the server is stored in the HTML body of the main site.
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function get_public_description() : string {
+	public function get_public_description() : array {
 		if ( isset( $this->public_description ) && ! is_null( $this->public_description ) ) {
-			return $this->public_description;
+			return [ 'public_description' => $this->public_description ];
 		}
 
 		$desc_url = $this->get_description_endpoint();
 		if ( empty( $desc_url ) ) {
-			return '';
+			return [ 'public_description' => '' ];
 		}
 
 		try {
 			$this->public_description = $this->remote_get( $desc_url );
 		} catch ( Exception $e ) {
-			return '';
+			return [ 'public_description' => '' ];
 		}
 
-		return $this->public_description;
+		return [ 'public_description' => $this->public_description ];
 	}
 
 	/**
@@ -152,7 +156,9 @@ class AliexRequest {
 	public function get_product_attributes() : array {
 		$sku_wrapper = $this->dom->find( '#j-product-info-sku' );
 		if ( 1 > count( $sku_wrapper ) ) {
-			return array();
+			return [
+				'attributes' => []
+			];
 		}
 
 		$sku_sets = $sku_wrapper[0]->find( '.p-property-item' );
@@ -217,7 +223,7 @@ class AliexRequest {
 			$sku_data[] = compact( 'sku_prop_id', 'label', 'msg_error', 'skus' );
 		}
 
-		return $sku_data;
+		return [ 'attributes' => compact( $sku_data ) ];
 	}
 
 	/**
@@ -281,7 +287,6 @@ class AliexRequest {
 			$item_type = $item->find( '.packaging-title' );
 			$value     = $item->find( '.packaging-des' );
 			if ( ! $item_type || ! $value ) {
-				wp_die( print_r( $item->html(), 1 ) );
 				continue;
 			}
 
