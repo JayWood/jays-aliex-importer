@@ -35,9 +35,6 @@ class AliexRequest {
 		// Set the property, just in case it needs to be access later.
 		$this->url = $url;
 
-		// Silence any domdocument errors since we don't control the HTML.
-		libxml_use_internal_errors( true );
-
 		// Grab the transient if you can.
 		$trans_key = 'aliex_' . md5( $url );
 		$response  = get_transient( $trans_key );
@@ -222,8 +219,7 @@ class AliexRequest {
 
 			$sku_data[] = compact( 'sku_prop_id', 'label', 'msg_error', 'skus' );
 		}
-
-		return [ 'attributes' => compact( $sku_data ) ];
+		return [ 'attributes' =>  $sku_data ];
 	}
 
 	/**
