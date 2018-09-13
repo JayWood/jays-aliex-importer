@@ -100,7 +100,7 @@ class AliexRequest {
 	 * Returns the JSON decoded array of SKU data from the skuProducts javascript variable.
 	 * @return array|bool an array on success, false on failure.
 	 */
-	public function get_js_sku_data() : array {
+	public function get_product_variations() : array {
 		preg_match( '/skuProducts=\[(.*?)\];/si', $this->request, $matches );
 		if ( empty( $matches[1] ) ) {
 			return false;
@@ -149,7 +149,7 @@ class AliexRequest {
 	 * Parses the SKU HTML sections and creates a human readable ( somewhat ) array of data.
 	 * @return array
 	 */
-	public function parse_variations_html() : array {
+	public function get_product_attributes() : array {
 		$sku_wrapper = $this->dom->find( '#j-product-info-sku' );
 		if ( 1 > count( $sku_wrapper ) ) {
 			return array();
