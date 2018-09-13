@@ -242,4 +242,73 @@ class AliexRequest {
 
 		return wp_remote_retrieve_body( $request );
 	}
+
+	/**
+	 * Gets a list of elements from the packaging list on the site.
+	 * @return array|\DiDom\Element[]|\DOMElement[]
+	 */
+	private function get_packing_items() {
+		$product_pane = $this->dom->find( '#j-product-desc' );
+		if ( ! $product_pane ) {
+			return [];
+		}
+
+		$packaging_list = $product_pane[0]->find( '.product-packaging-list' );
+		if ( ! $packaging_list ) {
+			return [];
+		}
+
+		$items = $packaging_list[0]->find( 'li.packaging-item' );
+		if ( ! $items ) {
+			return [];
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Gets the packaging details for a product.
+	 * @return array
+	 */
+	public function get_packaging_details() : array {
+		$items = $this->get_packing_items();
+		if ( empty( $items ) ) {
+			return [];
+		}
+
+		$out = [];
+		foreach ( $items as $item ) {
+			$item_type = $item->find( '.packaging-title' );
+			$value     = $item->find( '.packaging-des' );
+			if ( ! $item_type || ! $value ) {
+				wp_die( print_r( $item->html(), 1 ) );
+				continue;
+			}
+
+			$label = str_replace( ':', '', $item_type[0]->text() );
+			$slug  = sanitize_title( $label );
+
+			switch ( $slug ) {
+				case 'package-weight':
+					$value = [
+						'weight' => $value[0]->getAttribute( 'rel' ),
+						'unit'   => apply_filters( 'jays_aliex_get_default_shipping_unit', 'kg', $value ),
+					];
+					break;
+				case 'package-size':
+					$value = [
+						'size' => array_combine( [ 'length', 'width', 'height' ], explode( '|', $value[0]->getAttribute( 'rel' ) ) ),
+						'unit' => apply_filters( 'jays_aliex_get_default_size_unit', 'cm', $value ),
+					];
+					break;
+				default:
+					$value = $value[0]->text();
+					break;
+			}
+
+			$out[ $slug ] = $value;
+		}
+
+		return [ 'packaging-details' => $out ];
+	}
 }
