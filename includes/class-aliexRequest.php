@@ -2,7 +2,6 @@
 namespace com\plugish\aliex;
 
 use DiDom\Document;
-use DiDom\Element;
 use Exception;
 
 class AliexRequest {
