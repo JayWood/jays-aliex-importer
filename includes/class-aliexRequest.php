@@ -347,4 +347,17 @@ class AliexRequest {
 			]
 		];
 	}
+
+	/**
+	 * Gets the product title.
+	 * @return array
+	 */
+	public function get_name() : array {
+		$name = $this->dom->find( 'h1.product-name' );
+		if ( ! $name ) {
+			return [ 'product_name' => '' ];
+		}
+
+		return [ 'product_name' => $name[0]->text() ];
+	}
 }

@@ -31,6 +31,7 @@ class Scraper {
 		}
 
 		wp_send_json( array_merge(
+			$scraper->get_name(),
 			$scraper->get_item_specifics(),
 			$scraper->get_main_product_image(),
 			$scraper->get_product_images(),
