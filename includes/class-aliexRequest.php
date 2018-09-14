@@ -312,4 +312,39 @@ class AliexRequest {
 
 		return [ 'packaging-details' => $out ];
 	}
+
+	public function get_item_specifics() : array {
+		$element = $this->dom->find( 'div.ui-box.product-property-main:not(#photo-from-buyer)' );
+		if ( ! $element ) {
+			return [ 'item_specifics' => [] ];
+		}
+
+		$label      = $element[0]->find( '.ui-box-title' );
+		$attributes = $element[0]->find( 'li.property-item' );
+		if ( ! $label || ! $attributes ) {
+			return [ 'item_specifics' => [] ];
+		}
+
+		$item_specifics = [];
+		foreach ( $attributes as $attribute ) {
+			$title = $attribute->find( '.propery-title' );
+			$value = $attribute->find( '.propery-des' );
+
+			if ( ! $title || ! $value ) {
+				continue;
+			}
+
+			$title = trim( str_replace( ':', '', $title[0]->text() ) );
+			$value = $value[0]->text();
+
+			$item_specifics[ sanitize_title( $title ) ] = compact( 'title', 'value' );
+		}
+
+		return [
+			'item_specifics' => [
+				'label' => $label[0]->text(),
+				'items' => $item_specifics,
+			]
+		];
+	}
 }
