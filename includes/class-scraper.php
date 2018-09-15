@@ -31,6 +31,7 @@ class Scraper {
 		}
 
 		wp_send_json( array_merge(
+			$scraper->get_visible_price_data(),
 			$scraper->get_orders_total(),
 			$scraper->get_store_info(),
 			$scraper->get_name(),

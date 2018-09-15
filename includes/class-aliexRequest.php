@@ -70,7 +70,7 @@ class AliexRequest {
 
 	/**
 	 * Gets the main product image from the javascript variable.
-	 * @return string
+	 * @return array
 	 */
 	public function get_main_product_image() : array {
 		preg_match( '/mainBigPic = "(.*?)";/si', $this->request, $matches );
@@ -83,7 +83,7 @@ class AliexRequest {
 
 	/**
 	 * Gets the total available stock for the requested product, encompasses all SKUs.
-	 * @return int
+	 * @return array
 	 */
 	public function total_stock_available() : array {
 		preg_match( '/totalAvailQuantity=([0-9]+);/', $this->request, $matches );
@@ -154,7 +154,7 @@ class AliexRequest {
 		$sku_wrapper = $this->dom->find( '#j-product-info-sku' );
 		if ( 1 > count( $sku_wrapper ) ) {
 			return [
-				'attributes' => []
+				'attributes' => [],
 			];
 		}
 
@@ -219,7 +219,7 @@ class AliexRequest {
 
 			$sku_data[] = compact( 'sku_prop_id', 'label', 'msg_error', 'skus' );
 		}
-		return [ 'attributes' =>  $sku_data ];
+		return [ 'attributes' => $sku_data ];
 	}
 
 	/**
@@ -344,7 +344,7 @@ class AliexRequest {
 			'item_specifics' => [
 				'label' => sanitize_text_field( $label[0]->text() ),
 				'items' => $item_specifics,
-			]
+			],
 		];
 	}
 
@@ -381,7 +381,7 @@ class AliexRequest {
 			'store' => [
 				'name' => sanitize_text_field( $anchor[0]->text() ),
 				'url'  => esc_url_raw( $url ),
-			]
+			],
 		];
 	}
 
@@ -393,19 +393,106 @@ class AliexRequest {
 		$element = $this->dom->find( '#j-order-num' );
 		if ( ! $element ) {
 			return [
-				'orders_total' => 0
+				'orders_total' => 0,
 			];
 		}
 
 		$value = explode( ' ', $element[0]->text() );
 		if ( ! $value || empty( $value[0] ) ) {
 			return [
-				'orders_total' => 0
+				'orders_total' => 0,
 			];
 		}
 
 		return [
 			'orders_total' => intval( $value[0] ),
+		];
+	}
+
+	/**
+	 * Gets the minimum retail price for the product.
+	 * @return float
+	 */
+	private function get_min_price() : float {
+		preg_match( '/runParams\.minPrice="(.*?)";/s', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return 0.0;
+		}
+		return floatval( $matches[1] );
+	}
+
+	/**
+	 * Gets the max retail price for the product.
+	 * @return float
+	 */
+	private function get_max_price() : float {
+		preg_match( '/runParams\.maxPrice="(.*?)";/s', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return 0.0;
+		}
+		return floatval( $matches[1] );
+	}
+	/**
+	 * Gets the max retail price for product after discount.
+	 * @return float
+	 */
+	private function get_disc_max_price() : float {
+		preg_match( '/runParams\.actMaxPrice="(.*?)";/s', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return 0.0;
+		}
+		return floatval( $matches[1] );
+	}
+	/**
+	 * Gets the minimum retail price for product after discount.
+	 * @return float
+	 */
+	private function get_disc_min_price() : float {
+		preg_match( '/runParams\.actMinPrice="(.*?)";/s', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return 0.0;
+		}
+		return floatval( $matches[1] );
+	}
+
+	/**
+	 * Gets the currency code for the product, defaults to USD.
+	 * @return string
+	 */
+	private function get_currency_code() : string {
+		preg_match( '/runParams\.baseCurrencyCode="(.*?)";/s', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return 'USD';
+		}
+		return sanitize_text_field( $matches[1] );
+	}
+
+	/**
+	 * Gets the discount percentage, without the symbol, for the product.
+	 * @return float
+	 */
+	private function get_discount_percentage() : float {
+		preg_match( '/runParams\.discount="(.*?)";/si', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return 0.0;
+		}
+		return floatval( $matches[1] );
+	}
+
+	/**
+	 * Gets the visible price data on the screen for the customer.
+	 * @return array
+	 */
+	public function get_visible_price_data() : array {
+		return [
+			'price_data' => [
+				'min_price'          => $this->get_min_price(),
+				'max_price'          => $this->get_max_price(),
+				'min_discount_price' => $this->get_disc_min_price(),
+				'max_discount_price' => $this->get_disc_max_price(),
+				'currency_code'      => $this->get_currency_code(),
+				'discount_percent'   => $this->get_discount_percentage(),
+			],
 		];
 	}
 }
