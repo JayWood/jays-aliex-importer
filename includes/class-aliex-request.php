@@ -7,10 +7,21 @@ use Exception;
 class Aliex_Request {
 
 	/**
+	 * The URL to the freight server.
+	 */
+	const FREIGHT_URL = 'https://freight.aliexpress.com/ajaxFreightCalculateService.htm';
+
+	/**
 	 * The URL to be scraping.
 	 * @var string
 	 */
 	public $url;
+
+	/**
+	 * The product ID, used in a lot of calls.
+	 * @var string
+	 */
+	public $product_id;
 
 	/**
 	 * Used throughout this object.
@@ -23,6 +34,18 @@ class Aliex_Request {
 	 * @var array|\WP_Error
 	 */
 	private $request;
+
+	/**
+	 * The public description result from the HTTP request, stored so it's not queried more than once.
+	 * @var array
+	 */
+	public $public_description;
+
+	/**
+	 * Holds a request for shipping detail results, so it's not queried twice or more.
+	 * @var array
+	 */
+	public $shipping_details;
 
 	/**
 	 * Builds the request and sets up basic properties.
@@ -494,5 +517,65 @@ class Aliex_Request {
 				'discount_percent'   => $this->get_discount_percentage(),
 			],
 		];
+	}
+
+	/**
+	 * Gets the Product ID for the product itself, caches it in the object.
+	 * @return array
+	 */
+	public function get_product_id() : array {
+		if ( ! empty( $this->product_id ) ) {
+			return [ 'ID' => $this->product_id ];
+		}
+
+		preg_match( '/runParams\.productId="(.*?)";/s', $this->request, $matches );
+		if ( empty( $matches[1] ) ) {
+			return [ 'ID' => '' ];
+		}
+
+		$this->product_id = $matches[1];
+
+		return [ 'ID' => $matches[1] ];
+	}
+
+	/**
+	 * Gets the shipping detail JSON object, converts it to an array.
+	 * @return array
+	 */
+	public function get_shipping_details() : array {
+
+		// Return the cached data first.
+		if ( ! empty( $this->shipping_details ) ) {
+			return $this->shipping_details;
+		}
+
+		$product_id = $this->get_product_id();
+		if ( empty( $product_id['ID'] ) ) {
+			return [ 'shipping_details' => [] ];
+		}
+
+		$defaults = apply_filters( 'jays_aliex_get_default_freight_params', [
+			'productid'    => $product_id['ID'],
+			'country'      => 'US',
+			'province'     => '',
+			'city'         => '',
+			'count'        => '1',
+			'f'            => 'd',
+			'currencyCode' => 'USD',
+			'abVersion'    => '1',
+		] );
+
+		try {
+			$request = $this->remote_get( add_query_arg( $defaults, self::FREIGHT_URL ) );
+		} catch ( Exception $e ) {
+			return [ 'shipping_details' => [] ];
+		}
+
+		// The request wraps the content in parenthesis, remove them.
+		$request = ltrim( rtrim( $request, ')' ), '(' );
+
+		$this->shipping_details = [ 'shipping_details' => json_decode( $request, true ) ];
+
+		return $this->shipping_details;
 	}
 }
