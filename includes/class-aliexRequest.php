@@ -358,6 +358,30 @@ class AliexRequest {
 			return [ 'product_name' => '' ];
 		}
 
-		return [ 'product_name' => $name[0]->text() ];
+		return [ 'product_name' => sanitize_text_field( $name[0]->text() ) ];
+	}
+
+	/**
+	 * Gets the store name and url from the product page.
+	 * @return array
+	 */
+	public function get_store_info() : array {
+		$store_element = $this->dom->find( '.shop-name' );
+		if ( ! $store_element ) {
+			return [ 'store' => [] ];
+		}
+
+		$anchor = $store_element[0]->find( 'a' );
+		$url = $anchor[0]->getAttribute( 'href' );
+		if ( 0 === stripos( $url, '//' ) ) {
+			$url = 'https:' . $url;
+		}
+
+		return [
+			'store' => [
+				'name' => $anchor[0]->text(),
+				'url'  => esc_url_raw( $url ),
+			]
+		];
 	}
 }
