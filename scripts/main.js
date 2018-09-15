@@ -24,6 +24,10 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
         return admin.hasClass( 'post-type-product' );
     };
 
+    /**
+     * Initializes the script.
+     * @returns {boolean}
+     */
     app.init = () => {
         if ( ! app.meetsRequirements() ) {
             return false;
@@ -34,7 +38,14 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
         app.addUrlBtn()
     };
 
+    /**
+     * Adds the url button to the admin page if possible.
+     */
     app.addUrlBtn = () => {
+        if ( 1 > app.$c.pageTitles.length ) {
+            return;
+        }
+
         app.$c.pageTitles.last().after( '<a href="' + app.l10n.page_urls.jays_aliex_importer + '" class="page-title-action">' + app.l10n.ui.btn_import_now + '</a>' );
     };
 
