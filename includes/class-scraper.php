@@ -1,7 +1,7 @@
 <?php
 namespace com\plugish\aliex;
 
-require_once 'class-aliexRequest.php';
+require_once 'class-aliex-request.php';
 
 class Scraper {
 
@@ -21,7 +21,7 @@ class Scraper {
 
 	public function testing() {
 		try {
-			$scraper = new AliexRequest( 'https://www.aliexpress.com/store/product/Ghost-evil-Skull-skeleton-Hand-CZ-Ring-European-and-American-Punk-style-Motor-Biker-Men-Ring/1899928_32874190860.html' );
+			$scraper = new Aliex_Request( 'https://www.aliexpress.com/store/product/Ghost-evil-Skull-skeleton-Hand-CZ-Ring-European-and-American-Punk-style-Motor-Biker-Men-Ring/1899928_32874190860.html' );
 		} catch ( \Exception $e ) {
 			return;
 		}

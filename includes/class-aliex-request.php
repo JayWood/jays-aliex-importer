@@ -4,7 +4,7 @@ namespace com\plugish\aliex;
 use DiDom\Document;
 use Exception;
 
-class AliexRequest {
+class Aliex_Request {
 
 	/**
 	 * The URL to be scraping.
