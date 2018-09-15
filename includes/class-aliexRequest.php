@@ -292,7 +292,7 @@ class AliexRequest {
 			switch ( $slug ) {
 				case 'package-weight':
 					$value = [
-						'weight' => $value[0]->getAttribute( 'rel' ),
+						'weight' => floatval( $value[0]->getAttribute( 'rel' ) ),
 						'unit'   => apply_filters( 'jays_aliex_get_default_shipping_unit', 'kg', $value ),
 					];
 					break;
