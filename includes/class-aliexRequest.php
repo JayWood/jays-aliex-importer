@@ -65,7 +65,7 @@ class AliexRequest {
 			return [ 'product_images' => [] ];
 		}
 
-		return [ 'product_images' => $matched_urls ];
+		return [ 'product_images' => array_map( 'esc_url_raw', $matched_urls ) ];
 	}
 
 	/**
@@ -78,7 +78,7 @@ class AliexRequest {
 			return [ 'main_product_image' => '' ];
 		}
 
-		return [ 'main_product_image' => $matches[1] ];
+		return [ 'main_product_image' => esc_url_raw( $matches[1] ) ];
 	}
 
 	/**
