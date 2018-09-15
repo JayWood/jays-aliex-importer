@@ -35,7 +35,7 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
     };
 
     app.addUrlBtn = () => {
-        app.$c.pageTitles.last().after( '<a href="" class="page-title-action">' + app.l10n.ui.btn_import_now + '</a>' );
+        app.$c.pageTitles.last().after( '<a href="' + app.l10n.page_urls.jays_aliex_importer + '" class="page-title-action">' + app.l10n.ui.btn_import_now + '</a>' );
     };
 
     $( 'document' ).ready( app.init );
