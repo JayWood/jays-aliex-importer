@@ -286,7 +286,7 @@ class AliexRequest {
 				continue;
 			}
 
-			$label = str_replace( ':', '', $item_type[0]->text() );
+			$label = str_replace( ':', '', sanitize_text_field( $item_type[0]->text() ) );
 			$slug  = sanitize_title( $label );
 
 			switch ( $slug ) {
@@ -298,7 +298,7 @@ class AliexRequest {
 					break;
 				case 'package-size':
 					$value = [
-						'size' => array_combine( [ 'length', 'width', 'height' ], explode( '|', $value[0]->getAttribute( 'rel' ) ) ),
+						'size' => array_combine( [ 'length', 'width', 'height' ], array_map( 'intval', explode( '|', $value[0]->getAttribute( 'rel' ) ) ) ),
 						'unit' => apply_filters( 'jays_aliex_get_default_size_unit', 'cm', $value ),
 					];
 					break;
@@ -334,15 +334,15 @@ class AliexRequest {
 				continue;
 			}
 
-			$title = trim( str_replace( ':', '', $title[0]->text() ) );
-			$value = $value[0]->text();
+			$title = sanitize_text_field( trim( str_replace( ':', '', $title[0]->text() ) ) );
+			$value = sanitize_text_field( $value[0]->text() );
 
 			$item_specifics[ sanitize_title( $title ) ] = compact( 'title', 'value' );
 		}
 
 		return [
 			'item_specifics' => [
-				'label' => $label[0]->text(),
+				'label' => sanitize_text_field( $label[0]->text() ),
 				'items' => $item_specifics,
 			]
 		];
@@ -372,14 +372,14 @@ class AliexRequest {
 		}
 
 		$anchor = $store_element[0]->find( 'a' );
-		$url = $anchor[0]->getAttribute( 'href' );
+		$url    = $anchor[0]->getAttribute( 'href' );
 		if ( 0 === stripos( $url, '//' ) ) {
 			$url = 'https:' . $url;
 		}
 
 		return [
 			'store' => [
-				'name' => $anchor[0]->text(),
+				'name' => sanitize_text_field( $anchor[0]->text() ),
 				'url'  => esc_url_raw( $url ),
 			]
 		];
