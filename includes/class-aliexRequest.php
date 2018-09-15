@@ -384,4 +384,28 @@ class AliexRequest {
 			]
 		];
 	}
+
+	/**
+	 * Returns the value of the total orders.
+	 * @return array
+	 */
+	public function get_orders_total() : array {
+		$element = $this->dom->find( '#j-order-num' );
+		if ( ! $element ) {
+			return [
+				'orders_total' => 0
+			];
+		}
+
+		$value = explode( ' ', $element[0]->text() );
+		if ( ! $value || empty( $value[0] ) ) {
+			return [
+				'orders_total' => 0
+			];
+		}
+
+		return [
+			'orders_total' => intval( $value[0] ),
+		];
+	}
 }
