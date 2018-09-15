@@ -578,4 +578,38 @@ class Aliex_Request {
 
 		return $this->shipping_details;
 	}
+
+	/**
+	 * Gets the full breadcrumb in an array.
+	 * @return array
+	 */
+	public function get_breadcrumb() : array {
+
+		$default = [ 'breadcrumb' => [] ];
+
+		$element_set = $this->dom->find( 'div.ui-breadcrumb' );
+		if ( ! $element_set ) {
+			return $default;
+		}
+
+		$anchors = $element_set[0]->find( 'a' );
+		if ( ! $anchors ) {
+			return $default;
+		}
+
+		$out = [];
+		foreach ( $anchors as $anchor ) {
+			$href = $anchor->getAttribute( 'href' );
+			if ( 0 === stripos( $href, '//' ) ) {
+				$href = 'https:' . $href;
+			}
+
+			$out[] = [
+				'label' => sanitize_text_field( $anchor->text() ),
+				'href'  => esc_url_raw( $href )
+			];
+		}
+
+		return [ 'breadcrumb' => $out ];
+	}
 }
