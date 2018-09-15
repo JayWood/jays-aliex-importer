@@ -52,6 +52,18 @@ class WooCommerce {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 		add_action( 'admin_menu', [ $this, 'add_importer_menu' ] );
 		add_action( 'admin_head', [ $this, 'hide_menus' ] );
+		add_filter( 'woocommerce_screen_ids', [ $this, 'add_screen_id' ] );
+	}
+
+	/**
+	 * Adds our screen ID to the list of possible screens, allowing WC to load styles and scripts.
+	 * @param array $ids
+	 *
+	 * @return array
+	 */
+	public function add_screen_id( array $ids ) : array {
+		$ids[] = 'product_page_jays_aliex_importer';
+		return $ids;
 	}
 
 	/**
@@ -103,7 +115,7 @@ class WooCommerce {
 	}
 
 	public function product_importer() {
-		echo 'made it';
+		include_once 'import/html-product-import.php';
 	}
 
 	/**
