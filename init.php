@@ -20,5 +20,5 @@ function get_view( $view ) {
 	include 'views/' . $view;
 }
 
-require_once 'includes/class-scraper.php';
-require_once 'includes/class-woocommerce.php';
+require_once 'includes/class-woocommerce-core.php';
+require_once 'includes/class-woocommerce-importer.php';

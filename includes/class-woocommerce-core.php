@@ -2,7 +2,7 @@
 
 namespace com\plugish\aliex;
 
-class WooCommerce {
+class WooCommerce_Core {
 
 	/**
 	 * Version for assets.
@@ -13,9 +13,15 @@ class WooCommerce {
 
 	/**
 	 * Instance of the current class.
-	 * @var WooCommerce
+	 * @var WooCommerce_Core
 	 */
 	public static $instance = null;
+
+	/**
+	 * Instance of the importer class.
+	 * @var WooCommerce_Importer
+	 */
+	public $importer;
 
 	/**
 	 * A list of importers
@@ -34,7 +40,7 @@ class WooCommerce {
 
 	/**
 	 * Gets the instance of the current class.
-	 * @return WooCommerce
+	 * @return WooCommerce_Core
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -151,4 +157,4 @@ class WooCommerce {
 	}
 
 }
-add_action( 'plugins_loaded', [ WooCommerce::get_instance(), 'hooks' ] );
+add_action( 'plugins_loaded', [ WooCommerce_Core::get_instance(), 'hooks' ] );

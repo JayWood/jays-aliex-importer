@@ -55,20 +55,35 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
 
         app.toggleFormState();
 
+        // Set default progress to 0, in case it's set otherwise.
+        app.setProgress(0);
+
         $.ajax({
             url: ajaxurl,
             data: values,
+            dataType: 'json',
         }).done( (result) => {
-            window.console.log( result );
+            if ( ! result.success ) {
+                return;
+            }
+
+
             app.toggleFormState();
         } );
     };
 
+    /**
+     * Toggles all form states needed for the import form.
+     */
     app.toggleFormState = () => {
         app.$c.spinner.toggle();
         app.$c.formTable.toggle();
         app.$c.progress.toggle();
         app.$c.wcActions.toggle();
+    };
+
+    app.setProgress = (progress) => {
+      app.$c.progress.val( parseInt( progress ) );
     };
 
     /**

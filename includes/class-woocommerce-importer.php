@@ -3,20 +3,11 @@ namespace com\plugish\aliex;
 
 require_once 'class-aliex-request.php';
 
-class Scraper {
+class WooCommerce_Importer {
 
-	public static $instance = null;
+	public function import( string $url ) {
 
-	public static function get_instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self;
-		}
-
-		return self::$instance;
-	}
-
-	public function hooks() {
-		add_action( 'admin_init', [ $this, 'testing' ] );
+		wp_send_json_error( 'Operation Failed' );
 	}
 
 	public function testing() {
@@ -48,4 +39,3 @@ class Scraper {
 	}
 
 }
-add_action( 'plugins_loaded', [ Scraper::get_instance(), 'hooks' ] );
