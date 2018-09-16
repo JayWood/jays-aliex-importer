@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="woocommerce-exporter-wrapper">
 		<form class="woocommerce-exporter">
 			<?php wp_nonce_field( 'jays-aliex-security' ); ?>
+			<input type="hidden" name="action" value="jays-aliex-process-import" />
 			<header>
 				<span class="spinner is-active"></span>
 				<h2><?php esc_html_e( 'Import URL', 'jays-aliex-importer' ); ?></h2>

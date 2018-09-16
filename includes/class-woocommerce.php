@@ -53,6 +53,7 @@ class WooCommerce {
 		add_action( 'admin_menu', [ $this, 'add_importer_menu' ] );
 		add_action( 'admin_head', [ $this, 'hide_menus' ] );
 		add_filter( 'woocommerce_screen_ids', [ $this, 'add_screen_id' ] );
+		add_action( 'wp_ajax_jays-aliex-process-import', [ $this, 'ajax_import' ] );
 	}
 
 	/**
@@ -79,7 +80,7 @@ class WooCommerce {
 	 * Registers assets like CSS, JS and other components.
 	 */
 	public function register_assets() {
-		wp_register_script( 'jays_aliex_main', get_plugin_url() . 'scripts/main.js', array( 'jquery' ), self::SCRIPTS_VER, true );
+		wp_register_script( 'jays_aliex_main', get_plugin_url() . 'scripts/main.js', array( 'jquery' ), time(), true );
 
 		$page_urls = [];
 		foreach ( $this->importers as $k => $v ) {
@@ -114,6 +115,9 @@ class WooCommerce {
 		}
 	}
 
+	/**
+	 * Renders the product importer screen.
+	 */
 	public function product_importer() {
 		get_view( 'html-product-import.php' );
 	}
@@ -135,6 +139,15 @@ class WooCommerce {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Handles the ajax importer.
+	 */
+	public function ajax_import() {
+		check_ajax_referer( 'jays-aliex-security' );
+
+		wp_send_json_success( $_REQUEST );
 	}
 
 }

@@ -9,6 +9,10 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
 
     app.cache = () => {
         app.$c.pageTitles = $( 'a.page-title-action' );
+        app.$c.spinner = $( 'span.spinner' );
+        app.$c.progress = $( 'progress' );
+        app.$c.formTable = $( 'table.form-table' );
+        app.$c.wcActions = $( 'div.wc-actions' );
     };
 
     /**
@@ -35,7 +39,36 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
 
         app.cache();
 
-        app.addUrlBtn()
+        app.addUrlBtn();
+
+        $( 'button.jays-aliex-importer-button' ).on( 'click', app.processImport );
+    };
+
+    /**
+     * Processes the import values.
+     *
+     * @param evt
+     */
+    app.processImport = ( evt ) => {
+        evt.preventDefault();
+        let values = $( 'form.woocommerce-exporter' ).serialize();
+
+        app.toggleFormState();
+
+        $.ajax({
+            url: ajaxurl,
+            data: values,
+        }).done( (result) => {
+            window.console.log( result );
+            app.toggleFormState();
+        } );
+    };
+
+    app.toggleFormState = () => {
+        app.$c.spinner.toggle();
+        app.$c.formTable.toggle();
+        app.$c.progress.toggle();
+        app.$c.wcActions.toggle();
     };
 
     /**
