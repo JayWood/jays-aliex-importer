@@ -115,7 +115,7 @@ class WooCommerce {
 	}
 
 	public function product_importer() {
-		include_once 'import/html-product-import.php';
+		get_view( 'html-product-import.php' );
 	}
 
 	/**
