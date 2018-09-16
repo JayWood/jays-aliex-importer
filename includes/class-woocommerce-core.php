@@ -86,6 +86,12 @@ class WooCommerce_Core {
 	 * Registers assets like CSS, JS and other components.
 	 */
 	public function register_assets() {
+
+
+		if ( isset( $_GET['x'] ) ) {
+			WooCommerce_Importer::testing();
+		}
+
 		wp_register_script( 'jays_aliex_main', get_plugin_url() . 'scripts/main.js', array( 'jquery' ), time(), true );
 
 		$page_urls = [];
@@ -152,8 +158,12 @@ class WooCommerce_Core {
 	 */
 	public function ajax_import() {
 		check_ajax_referer( 'jays-aliex-security' );
+		if ( empty( $_REQUEST['jays-aliex-url'] ) ) {
+			wp_send_json_error( 'Failed' );
+		}
 
-		wp_send_json_success( $_REQUEST );
+		$importer = new WooCommerce_Importer();
+		$importer->import( $_REQUEST['jays-aliex-url'] );
 	}
 
 }

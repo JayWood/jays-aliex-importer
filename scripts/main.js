@@ -63,11 +63,11 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
             data: values,
             dataType: 'json',
         }).done( (result) => {
+            window.console.log( result );
             if ( ! result.success ) {
+                app.toggleFormState();
                 return;
             }
-
-
             app.toggleFormState();
         } );
     };
