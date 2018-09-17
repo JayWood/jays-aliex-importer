@@ -13,6 +13,7 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
         app.$c.progress = $( 'progress' );
         app.$c.formTable = $( 'table.form-table' );
         app.$c.wcActions = $( 'div.wc-actions' );
+        app.$c.messagesSuccess = $( '#jays-aliex-message' );
     };
 
     /**
@@ -42,6 +43,15 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
         app.addUrlBtn();
 
         $( 'button.jays-aliex-importer-button' ).on( 'click', app.processImport );
+        app.$c.messagesSuccess.find( '.reset-link' ).on( 'click', app.resetForm );
+    };
+
+    app.resetForm = ( evt ) => {
+        evt.preventDefault();
+        app.$c.messagesSuccess.toggle();
+        app.$c.formTable.find( '#jays-aliex-url' ).val( '' );
+        app.$c.formTable.toggle();
+        app.$c.wcActions.toggle();
     };
 
     /**
@@ -89,14 +99,20 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
                 app.setProgress(100);
                 setTimeout( () => {
                     window.console.log( 'redirect fires' );
-                    app.toggleFormState();
+                    app.$c.messagesSuccess.find( '.edit-post-link' ).attr( 'href', data.edit_link.replace(/&amp;/g, '&') );
+                    app.toggleSuccess();
                 }, 2000 );
             }
         } );
     };
 
-    app.showSuccess = () => {
-
+    /**
+     * Toggle the success method.
+     */
+    app.toggleSuccess = () => {
+        app.$c.progress.toggle();
+        app.$c.messagesSuccess.toggle();
+        app.$c.spinner.toggle();
     };
 
     /**

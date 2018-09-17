@@ -34,8 +34,7 @@ class WooCommerce_Importer {
 		$product      = $is_variable ? $this->create_variable_product( $product_data ) : $this->create_simple_product( $product_data );
 
 		if ( ! empty( $product ) ) {
-			$edit_link = get_edit_post_link( $product );
-			wp_send_json_success( compact( 'product', 'is_variable', 'step', 'edit_link' ) );
+			wp_send_json_success( compact( 'product', 'is_variable', 'step' ) );
 		}
 
 		wp_send_json_error( [ 'msg' => esc_attr__( 'Failed to import product.', 'jays-aliex-importer' ) ] );
@@ -51,7 +50,7 @@ class WooCommerce_Importer {
 		}
 
 		wp_send_json_success( [
-			'edit_link' => get_edit_post_link( $product_id ),
+			'edit_link' => esc_js( get_edit_post_link( $product_id ) ),
 		] );
 	}
 

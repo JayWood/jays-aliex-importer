@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					</tbody>
 				</table>
-				<div id="messages success" style="display: none;">
+				<div id="jays-aliex-message" style="display: none;">
 					<p><?php esc_html_e( 'Awesome! Your product was successfully imported.', 'jays-aliex-importer' ); ?><br />
 						<a href="" class="edit-post-link"><?php esc_html_e( 'Edit Product', 'jays-aliex-importer' ); ?></a> |
 						<a href="" class="reset-link"><?php esc_html_e( 'Import Another', 'jays-aliex-importer' ); ?></a>
