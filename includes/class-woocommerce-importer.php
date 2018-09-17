@@ -19,7 +19,7 @@ class WooCommerce_Importer {
 	 */
 	private $scraper;
 
-	public function import( string $url ) {
+	public function import_product( string $url ) {
 		$url = esc_url_raw( $url );
 
 		try {
@@ -34,10 +34,25 @@ class WooCommerce_Importer {
 		$product      = $is_variable ? $this->create_variable_product( $product_data ) : $this->create_simple_product( $product_data );
 
 		if ( ! empty( $product ) ) {
-			wp_send_json_success( compact( 'product', 'is_variable', 'step' ) );
+			$edit_link = get_edit_post_link( $product );
+			wp_send_json_success( compact( 'product', 'is_variable', 'step', 'edit_link' ) );
 		}
 
-		wp_send_json_error( 'Operation Failed' );
+		wp_send_json_error( [ 'msg' => esc_attr__( 'Failed to import product.', 'jays-aliex-importer' ) ] );
+	}
+
+	/**
+	 * @param int $product_id
+	 */
+	public function import_variations( int $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			wp_send_json_error( [ 'msg' => esc_attr__( 'Failed to import product variations.', 'jays-aliex-importer' ) ] );
+		}
+
+		wp_send_json_success( [
+			'edit_link' => get_edit_post_link( $product_id ),
+		] );
 	}
 
 	/**

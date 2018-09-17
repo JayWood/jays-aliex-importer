@@ -56,20 +56,47 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
         app.toggleFormState();
 
         // Set default progress to 0, in case it's set otherwise.
-        app.setProgress(0);
+        app.setProgress(33);
 
+        app.ajax_call( values );
+    };
+
+    /**
+     * Calls the ajax URL required for processing document imports.
+     * @param dataSet
+     */
+    app.ajax_call = ( dataSet ) => {
         $.ajax({
             url: ajaxurl,
-            data: values,
+            data: dataSet,
             dataType: 'json',
         }).done( (result) => {
+
             window.console.log( result );
+
             if ( ! result.success ) {
                 app.toggleFormState();
                 return;
             }
-            app.toggleFormState();
+
+            let data = result.data;
+            if ( data.is_variable && 1 === data.step ) {
+                // Run stage two import
+                dataSet += '&product='+data.product;
+                app.setProgress(66);
+                app.ajax_call( dataSet );
+            } else {
+                app.setProgress(100);
+                setTimeout( () => {
+                    window.console.log( 'redirect fires' );
+                    app.toggleFormState();
+                }, 2000 );
+            }
         } );
+    };
+
+    app.showSuccess = () => {
+
     };
 
     /**

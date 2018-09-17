@@ -103,6 +103,7 @@ class WooCommerce_Core {
 
 		wp_localize_script( 'jays_aliex_main', 'jays_aliex_i10n', [
 			'ui'        => [
+				'import_success' => esc_html__( 'Product successfully imported. <a href="%s">Edit your product.</a>', 'jays-aliex-importer' ), // @codingStandardsIgnoreLine
 				'btn_import_now' => esc_html__( 'Import Aliexpress URL', 'jays-aliex-importer' ),
 			],
 			'page_urls' => $page_urls,
@@ -163,7 +164,11 @@ class WooCommerce_Core {
 		}
 
 		$importer = new WooCommerce_Importer();
-		$importer->import( $_REQUEST['jays-aliex-url'] );
+		if ( isset( $_REQUEST['product'] ) ) {
+			$importer->import_variations( intval( $_REQUEST['product'] ) );
+		}
+
+		$importer->import_product( $_REQUEST['jays-aliex-url'] );
 	}
 
 }
