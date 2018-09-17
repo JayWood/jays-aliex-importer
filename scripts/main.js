@@ -46,14 +46,6 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
         app.$c.messagesSuccess.find( '.reset-link' ).on( 'click', app.resetForm );
     };
 
-    app.resetForm = ( evt ) => {
-        evt.preventDefault();
-        app.$c.messagesSuccess.toggle();
-        app.$c.formTable.find( '#jays-aliex-url' ).val( '' );
-        app.$c.formTable.toggle();
-        app.$c.wcActions.toggle();
-    };
-
     /**
      * Processes the import values.
      *
@@ -125,6 +117,22 @@ window.comPlugish.jaysAliex = ( function( window, document, $ ) {
         app.$c.wcActions.toggle();
     };
 
+    /**
+     * Allows resetting the form after a successful transaction.
+     * @param evt
+     */
+    app.resetForm = ( evt ) => {
+        evt.preventDefault();
+        app.$c.messagesSuccess.toggle();
+        app.$c.formTable.find( '#jays-aliex-url' ).val( '' );
+        app.$c.formTable.toggle();
+        app.$c.wcActions.toggle();
+    };
+
+    /**
+     * Sets the progress bar size.
+     * @param progress
+     */
     app.setProgress = (progress) => {
       app.$c.progress.val( parseInt( progress ) );
     };
