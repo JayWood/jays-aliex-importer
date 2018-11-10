@@ -19,4 +19,7 @@ The idea behind creating a sort of API interface to read from was for ease of us
 platform be it WooCommerce, Shopify, etc... Essentially the API aspect could be easily decoupled into it's own library
 whereas it could then be used for just about anything. It's a scraper after all!
 
-![](https://i.gyazo.com/8da86cd883c785cd1f02ec08bd1edca5.gif)
+This plugin leverages the WooCommerce export form with a bit of added javascript to keep a consistent WooCommerce
+experience.
+
+![](https://i.gyazo.com/b73b2f87c8395166ceb9677f1d6597af.gif)
